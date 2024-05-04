@@ -1,7 +1,6 @@
 import React from "react";
 import { Button, Box, Select, MenuItem } from "@mui/material";
 import Rule from "./Rule";
-
 const Group = ({
   group,
   setGroup,
@@ -13,16 +12,12 @@ const Group = ({
 }) => {
   const addRule = () => {
     const newRule = { type: "rule", field: "", operator: "", value: "" };
-    const updatedRules = Array.isArray(group.rules)
-      ? [...group.rules, newRule]
-      : [newRule];
+    const updatedRules = Array.isArray(group.rules) ? [...group.rules, newRule] : [newRule];
     setGroup({ ...group, rules: updatedRules });
   };
 
   const handleRuleChange = (index, updatedRule) => {
-    const updatedRules = group.rules.map((rule, i) =>
-      i === index ? updatedRule : rule
-    );
+    const updatedRules = group.rules.map((rule, i) => i === index ? updatedRule : rule);
     setGroup({ ...group, rules: updatedRules });
   };
 
@@ -35,15 +30,22 @@ const Group = ({
     setGroup({ ...group, combinator: event.target.value });
   };
 
-  const handleAddGroup = () => {
-    if (onAddGroup) {
-      onAddGroup();
-    }
-  };
+  const handleAddGroup = () => onAddGroup && onAddGroup();
 
   const deleteGroup = (index) => {
     const updatedRules = group.rules.filter((_, i) => i !== index);
     setGroup({ ...group, rules: updatedRules });
+  };
+
+  // Calculate the available fields for each rule
+  const getAvailableFields = (currentIndex) => {
+    console.log(group)
+    const usedFields = group.rules.map((rule, index) => index !== currentIndex ? rule.field : null);
+    if (group?.combinator == "and") {
+      return fieldOptions.filter(option => !usedFields.includes(option.value));
+
+    }
+    return fieldOptions
   };
 
   return (
@@ -83,13 +85,26 @@ const Group = ({
           </Button>
         )}
       </Box>
+      {/* {group.rules &&
+        group.rules.map((rule, index) => (
+          <Rule
+            key={index}
+            rule={rule}
+            fieldOptions={getAvailableFields(index)}  // Pass the filtered field options
+            onDelete={() => deleteRule(index)}
+            onRuleChange={(prop, value) =>
+              handleRuleChange(index, { ...rule, [prop]: value })
+            }
+            disableDelete={group.rules.length === 1}
+          />
+        ))} */}
       {group.rules &&
         group.rules.map((rule, index) =>
           rule.type === "rule" ? (
             <Rule
               key={index}
               rule={rule}
-              fieldOptions={fieldOptions}
+              fieldOptions={getAvailableFields(index)}
               onDelete={() => deleteRule(index)}
               onRuleChange={(prop, value) =>
                 handleRuleChange(index, { ...rule, [prop]: value })
@@ -115,4 +130,3 @@ const Group = ({
 };
 
 export default Group;
-
