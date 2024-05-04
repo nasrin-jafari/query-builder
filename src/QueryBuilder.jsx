@@ -11,23 +11,32 @@ const fieldOptions = [
   { label: "field 6", value: "field6" },
 ];
 const QueryBuilder = () => {
-  const createDefaultRule = () => ({
-    type: "rule",
-    field: "",
-    operator: "",
-    value: "",
-  });
-
+  // const createDefaultRule = () => ({
+  //   type: "rule",
+  //   field: "",
+  //   operator: "",
+  //   value: "",
+  // });
   // Initialize the state with one group that includes one default rule
+  // const [query, setQuery] = useState({
+  //   combinator: "and",
+  //   rules: [createDefaultRule()],
+  // });
+
+  const createDefaultRules = () => ([
+    { type: "rule", field: "firstName", operator: "=", value: "" },
+    { type: "rule", field: "lastName", operator: "=", value: "" },
+    { type: "rule", field: "age", operator: "=", value: "" }
+  ]);
   const [query, setQuery] = useState({
     combinator: "and",
-    rules: [createDefaultRule()],
+    rules: createDefaultRules(),
   });
 
   const addGroup = () => {
     const newGroup = {
       combinator: "and",
-      rules: [createDefaultRule()],
+      rules: createDefaultRules(),
     };
     setQuery((prev) => ({
       ...prev,
