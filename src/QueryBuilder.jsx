@@ -2,6 +2,14 @@ import React, { useState } from "react";
 import Group from "./Group";
 import { Button } from "@mui/material";
 
+const fieldOptions = [
+  { label: "First Name", value: "firstName" },
+  { label: "Last Name", value: "lastName" },
+  { label: "Age", value: "age" },
+  { label: "field 4", value: "field4" },
+  { label: "field 5", value: "field5" },
+  { label: "field 6", value: "field6" },
+];
 const QueryBuilder = () => {
   const createDefaultRule = () => ({
     type: "rule",
@@ -38,6 +46,7 @@ const QueryBuilder = () => {
         setGroup={setQuery}
         canAddGroup={true} // Allow the main group to show the add group button
         onAddGroup={addGroup} // Pass the addGroup function as a prop
+        fieldOptions={fieldOptions}
       />
 
       <Button onClick={exportQuery} variant="contained" color="primary">
@@ -48,4 +57,4 @@ const QueryBuilder = () => {
 };
 
 export default QueryBuilder;
-//666
+

@@ -1,19 +1,19 @@
 import React from 'react';
 import { TextField, MenuItem, FormControl, Select, InputLabel, Button, Box } from '@mui/material';
 
-const Rule = ({ rule, onDelete, onRuleChange, disableDelete }) => {
-    return (
+const Rule = ({ rule, onDelete, onRuleChange, disableDelete, fieldOptions }) => {
+  return (
     <Box sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        p: 2,
-        mb: 2,
-        backgroundColor: '#424242', // Adjust the background color to match the dark theme
-        color: 'white', // Text should be white for readability
-        borderRadius: '4px',
-        // Add more styling as needed...
-      }}>
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      p: 2,
+      mb: 2,
+      backgroundColor: '#424242', // Adjust the background color to match the dark theme
+      color: 'white', // Text should be white for readability
+      borderRadius: '4px',
+      // Add more styling as needed...
+    }}>
       <FormControl variant="outlined" sx={{ minWidth: 120, flex: 1 }}>
         <InputLabel>Field</InputLabel>
         <Select
@@ -21,9 +21,11 @@ const Rule = ({ rule, onDelete, onRuleChange, disableDelete }) => {
           value={rule.field}
           onChange={e => onRuleChange('field', e.target.value)}
         >
-          <MenuItem value="firstName">First Name</MenuItem>
-          <MenuItem value="lastName">Last Name</MenuItem>
-          <MenuItem value="age">Age</MenuItem>
+          {fieldOptions?.map(option => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <FormControl variant="outlined" sx={{ minWidth: 120, flex: 1 }}>
@@ -46,7 +48,7 @@ const Rule = ({ rule, onDelete, onRuleChange, disableDelete }) => {
         onChange={e => onRuleChange('value', e.target.value)}
         sx={{ flex: 2 }}
       />
-  <Button
+      <Button
         onClick={onDelete}
         variant="contained"
         color="secondary"

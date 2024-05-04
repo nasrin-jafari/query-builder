@@ -9,6 +9,7 @@ const Group = ({
   onAddGroup,
   onDeleteGroup,
   indexInParent,
+  fieldOptions
 }) => {
   const addRule = () => {
     const newRule = { type: "rule", field: "", operator: "", value: "" };
@@ -88,11 +89,14 @@ const Group = ({
             <Rule
               key={index}
               rule={rule}
+              fieldOptions={fieldOptions}
               onDelete={() => deleteRule(index)}
               onRuleChange={(prop, value) =>
                 handleRuleChange(index, { ...rule, [prop]: value })
               }
               disableDelete={group.rules.length === 1}
+
+
             />
           ) : (
             <Group
@@ -101,6 +105,8 @@ const Group = ({
               setGroup={(newGroup) => handleRuleChange(index, newGroup)}
               onDeleteGroup={deleteGroup}
               indexInParent={index}
+              fieldOptions={fieldOptions}
+
             />
           )
         )}
@@ -109,4 +115,4 @@ const Group = ({
 };
 
 export default Group;
-//666
+
