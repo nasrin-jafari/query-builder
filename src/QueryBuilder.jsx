@@ -1,69 +1,89 @@
-import React, { useState } from "react";
-import Group from "./Group";
+import React from "react";
 import { Button } from "@mui/material";
+import { useForm, FormProvider } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import Group from "./Group";
 
 const fieldOptions = [
-  { label: "First Name", value: "firstName" },
-  { label: "Last Name", value: "lastName" },
-  { label: "Age", value: "age" },
-  { label: "field 4", value: "field4" },
-  { label: "field 5", value: "field5" },
-  { label: "field 6", value: "field6" },
+  { label: "parent", value: "parent" },
+  { label: "target", value: "target" },
+  { label: "time", value: "time" },
+  { label: "agent id", value: "agentId" },
+  { label: "server id", value: "serverId" },
+  { label: "score", value: "score" },
 ];
-const QueryBuilder = () => {
-  // const createDefaultRule = () => ({
-  //   type: "rule",
-  //   field: "",
-  //   operator: "",
-  //   value: "",
-  // });
-  // Initialize the state with one group that includes one default rule
-  // const [query, setQuery] = useState({
-  //   combinator: "and",
-  //   rules: [createDefaultRule()],
-  // });
 
-  const createDefaultRules = () => ([
-    { type: "rule", field: "firstName", operator: "=", value: "" },
-    { type: "rule", field: "lastName", operator: "=", value: "" },
-    { type: "rule", field: "age", operator: "=", value: "" }
-  ]);
-  const [query, setQuery] = useState({
-    combinator: "and",
-    rules: createDefaultRules(),
+const ruleSchema = yup.object().shape({
+  field: yup.string().required("Field is required"),
+  operator: yup.string().required("Operator is required"),
+  value: yup.string().required("Value is required"),
+});
+
+const groupSchema = yup.object().shape({
+  combinator: yup.string().required("Combinator is required"),
+  rules: yup
+    .array()
+    .of(
+      yup.lazy((value) => (value.type === "group" ? groupSchema : ruleSchema))
+    ),
+});
+
+const schema = yup.object().shape({
+  combinator: yup.string().required("Combinator is required"),
+  rules: yup
+    .array()
+    .of(
+      yup.lazy((value) => (value.type === "group" ? groupSchema : ruleSchema))
+    ),
+});
+const fixedRules = [
+  { type: "rule", field: "parent", operator: "=", value: "" },
+  { type: "rule", field: "target", operator: "=", value: "" },
+  { type: "rule", field: "time", operator: "=", value: "" },
+];
+const firstRules = [
+  { type: "rule", field: "agentId", operator: "=", value: "" },
+];
+const defaultRules = [...fixedRules, ...firstRules];
+
+const QueryBuilder = () => {
+  const methods = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      type: "group",
+      combinator: "and",
+      key: "parent",
+      rules: defaultRules,
+    },
   });
 
-  const addGroup = () => {
-    const newGroup = {
-      combinator: "and",
-      rules: createDefaultRules(),
-    };
-    setQuery((prev) => ({
-      ...prev,
-      rules: [...prev.rules, newGroup],
-    }));
-  };
+  const { handleSubmit, formState } = methods;
+  const { errors } = formState;
 
-  const exportQuery = () => {
-    console.log(JSON.stringify(query, null, 2));
+  const exportQuery = (data) => {
+    console.log(JSON.stringify(data, null, 2));
   };
 
   return (
-    <div>
-      <Group
-        group={query}
-        setGroup={setQuery}
-        canAddGroup={true} // Allow the main group to show the add group button
-        onAddGroup={addGroup} // Pass the addGroup function as a prop
-        fieldOptions={fieldOptions}
-      />
-
-      <Button onClick={exportQuery} variant="contained" color="primary">
-        Export Query
-      </Button>
-    </div>
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit(exportQuery)}>
+        <Group
+          name="rules"
+          combinatorName="combinator"
+          fieldOptions={fieldOptions}
+          errors={errors}
+          canAddGroup={true}
+          isMainGroup={true}
+          fixedRules={fixedRules}
+          defaultRules={defaultRules}
+        />
+        <Button type="submit" variant="contained" color="primary">
+          Export Query
+        </Button>
+      </form>
+    </FormProvider>
   );
 };
 
 export default QueryBuilder;
-
