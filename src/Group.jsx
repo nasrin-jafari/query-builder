@@ -14,6 +14,7 @@ const Group = ({
   name,
   combinatorName,
   fieldOptions,
+  keyName,
   errors = {},
   canAddGroup = false,
   isMainGroup = false,
@@ -21,7 +22,7 @@ const Group = ({
   fixedRules = [],
   defaultRules
 }) => {
-  const { control, watch } = useFormContext();
+  const { control, watch  } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name });
   const currentGroup = watch(name) || [];
   const currentCombinator = watch(combinatorName) || "and";
@@ -79,6 +80,20 @@ const Group = ({
               <Select {...field} label="Combinator">
                 <MenuItem value="and">AND</MenuItem>
                 <MenuItem value="or">OR</MenuItem>
+              </Select>
+            )}
+          />
+        </FormControl>
+        <FormControl variant="outlined" sx={{ mr: 2, minWidth: 120 }}>
+          <InputLabel>Key</InputLabel>
+          <Controller
+            name={keyName}
+            control={control}
+            defaultValue="parent"
+            render={({ field }) => (
+              <Select {...field} label="Key">
+                <MenuItem value="parent">Parent</MenuItem>
+                <MenuItem value="target">Target</MenuItem>
               </Select>
             )}
           />
