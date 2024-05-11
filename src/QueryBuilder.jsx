@@ -71,7 +71,6 @@ const QueryBuilder = () => {
         <Group
           name="rules"
           combinatorName="combinator"
-          keyName="key"
           fieldOptions={fieldOptions}
           errors={errors}
           canAddGroup={true}
