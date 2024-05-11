@@ -7,6 +7,7 @@ import {
   InputLabel,
   Button,
   Box,
+  FormHelperText,
 } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 
@@ -18,6 +19,7 @@ const Rule = ({
   disableDelete,
   handleFieldChange,
 }) => {
+  console.log(errors);
   const { control } = useFormContext();
   return (
     <Box
@@ -32,34 +34,37 @@ const Rule = ({
         borderRadius: "4px",
       }}
     >
-      <FormControl
-        variant="outlined"
-        sx={{ minWidth: 120, flex: 1, mr: 2 }}
-        error={!!errors?.field}
-      >
-        <InputLabel>Field</InputLabel>
-        <Controller
-          name={`${name}.field`}
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
+      <Controller
+        name={`${name}.field`}
+        control={control}
+        defaultValue=""
+        render={({ field, fieldState: { error } }) => (
+          <FormControl
+            variant="outlined"
+            sx={{ minWidth: 120, flex: 1, mr: 2 }}
+            error={!!error}
+          >
+            <InputLabel>Field</InputLabel>
             <Select
               {...field}
               label="Field"
               disabled={disableDelete}
-              onChange={(e) =>
-                handleFieldChange(e.target.value, parseInt(name.split("[")[1]))
-              }
+              onChange={(e) => {
+                handleFieldChange(e.target.value, parseInt(name.split("[")[1]));
+                field.onChange(e); // Ensure to call this to update react-hook-form
+              }}
             >
-              {fieldOptions.map((option) => (
+              {fieldOptions?.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
                 </MenuItem>
               ))}
             </Select>
-          )}
-        />
-      </FormControl>
+            {error && <FormHelperText>{error.message}</FormHelperText>}
+          </FormControl>
+        )}
+      />
+
       <Controller
         name={`${name}.operator`}
         control={control}
@@ -83,12 +88,14 @@ const Rule = ({
         name={`${name}.value`}
         control={control}
         defaultValue=""
-        render={({ field }) => (
+        render={({ field, fieldState: { error } }) => (
           <TextField
             {...field}
             label="Value"
             variant="outlined"
             sx={{ flex: 2, mr: 2 }}
+            error={!!error}
+            helperText={error ? error.message : null}
           />
         )}
       />

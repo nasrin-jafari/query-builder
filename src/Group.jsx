@@ -75,7 +75,7 @@ const Group = ({
       );
     }
   };
-
+console.log(errors ,'')
   return (
     <Box sx={{ border: "1px solid grey", p: 2, mb: 2 }}>
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
@@ -140,15 +140,14 @@ const Group = ({
       {fields.map((field, index) =>
         field.type === "rule" ? (
           <Rule
-            key={field.id}
-            name={`${name}[${index}]`}
-            fieldOptions={getAvailableFields(index)}
-            errors={errors[index] || {}}
-            remove={() => remove(index)}
-            disableDelete={index < fixedRules.length}
-            fixedRules={fixedRules}
-            handleFieldChange={handleFieldChange}
-          />
+          key={field.id}
+          name={`${name}[${index}]`}
+          fieldOptions={getAvailableFields(index)}
+          errors={errors.rules ? errors.rules[index] : {}}
+          remove={() => remove(index)}
+          disableDelete={index < fixedRules.length}
+          handleFieldChange={handleFieldChange}
+        />
         ) : (
           <Group
             key={field.id}
