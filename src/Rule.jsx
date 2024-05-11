@@ -10,9 +10,17 @@ import {
 } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 
-const Rule = ({ name, fieldOptions, errors, remove, disableDelete , fixedRules }) => {
+const Rule = ({
+  name,
+  fieldOptions,
+  errors,
+  remove,
+  disableDelete,
+  fixedRules,
+  handleFieldChange,
+}) => {
   const { control } = useFormContext();
-  const extractedFields = fixedRules?.map(rule => rule.field);
+
   return (
     <Box
       sx={{
@@ -32,59 +40,47 @@ const Rule = ({ name, fieldOptions, errors, remove, disableDelete , fixedRules }
         error={!!errors?.field}
       >
         <InputLabel>Field</InputLabel>
-        {fieldOptions?.length > 0 && (
-          <Controller
-            name={`${name}.field`}
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <Select
-                {...field}
-                label="Field"
-                error={!!errors?.field}
-                sx={{ borderColor: errors?.field ? "red" : "" }}
-                disabled={disableDelete}
-              >
-                {fieldOptions?.map((option) => (
-                  <MenuItem
-                    key={option.value}
-                    value={option.value}
-                    onClick={() => console.log(option.value)}
-                    // disabled={extractedFields?.includes(option.value)}
-                  >
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            )}
-          />
-        )}
-      </FormControl>
-      <FormControl
-        variant="outlined"
-        sx={{ minWidth: 120, flex: 1, mr: 2 }}
-        error={!!errors?.operator}
-      >
-        <InputLabel>Operator</InputLabel>
         <Controller
-          name={`${name}.operator`}
+          name={`${name}.field`}
           control={control}
           defaultValue=""
           render={({ field }) => (
             <Select
               {...field}
-              label="Operator"
-              error={!!errors?.operator}
-              sx={{ borderColor: errors?.operator ? "red" : "" }}
+              label="Field"
+              disabled={disableDelete}
+              onChange={(e) =>
+                handleFieldChange(e.target.value, parseInt(name.split("[")[1]))
+              }
             >
+              {fieldOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+        />
+      </FormControl>
+      <Controller
+        name={`${name}.operator`}
+        control={control}
+        defaultValue="="
+        render={({ field }) => (
+          <FormControl
+            variant="outlined"
+            sx={{ minWidth: 120, flex: 1, mr: 2 }}
+          >
+            <InputLabel>Operator</InputLabel>
+            <Select {...field} label="Operator">
               <MenuItem value="=">=</MenuItem>
               <MenuItem value="!=">!=</MenuItem>
               <MenuItem value=">">&gt;</MenuItem>
               <MenuItem value="<">&lt;</MenuItem>
             </Select>
-          )}
-        />
-      </FormControl>
+          </FormControl>
+        )}
+      />
       <Controller
         name={`${name}.value`}
         control={control}
@@ -94,8 +90,7 @@ const Rule = ({ name, fieldOptions, errors, remove, disableDelete , fixedRules }
             {...field}
             label="Value"
             variant="outlined"
-            error={!!errors?.value}
-            sx={{ flex: 2, mr: 2, borderColor: errors?.value ? "red" : "" }}
+            sx={{ flex: 2, mr: 2 }}
           />
         )}
       />

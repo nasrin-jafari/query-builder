@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Box,
@@ -7,7 +7,7 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import { useFieldArray, useFormContext, Controller } from "react-hook-form";
+import { useFormContext, useFieldArray, Controller } from "react-hook-form";
 import Rule from "./Rule";
 
 const Group = ({
@@ -19,26 +19,52 @@ const Group = ({
   isMainGroup = false,
   removeGroup = null,
   fixedRules = [],
-  defaultRules
+  defaultRules = [],
 }) => {
-  const { control, watch } = useFormContext();
+  const { control, watch, getValues, setValue } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name });
   const currentGroup = watch(name) || [];
   const currentCombinator = watch(combinatorName) || "and";
+  // State to track field usage
+  const [usedFields, setUsedFields] = useState([]);
 
-  // Extract fields from fixed rules
+  useEffect(() => {
+    const rules = getValues(name);
+    setUsedFields(rules.map((rule) => rule.field));
+  }, [getValues, name]);
+
+  const handleFieldChange = (fieldValue, index) => {
+    const values = getValues(name);
+    values[index].field = fieldValue;
+    setValue(name, values);
+    setUsedFields(values.map((rule) => rule.field));
+  };
+
+  const addRule = () => {
+    append({ type: "rule", field: "", operator: "=", value: "" });
+  };
+
+  const addGroup = () => {
+    append({
+      type: "group",
+      combinator: "and",
+      key: "parent",
+      rules: defaultRules,
+    });
+  };
   const extractedFixedFields = fixedRules.map((rule) => rule.field);
 
-  // Calculate the available fields for each rule within this group
   const getAvailableFields = (currentIndex) => {
+    const currentValues = getValues(name);
     const usedFields = currentGroup
       .filter((rule, index) => rule.type === "rule" && index !== currentIndex)
       .map((rule) => rule.field);
-
     if (currentCombinator === "and") {
-      // Ensure fixed fields are always available and other fields are unique
       return fieldOptions.filter(
-        (option) => !usedFields.includes(option.value)
+        (option) =>
+          !currentValues.some(
+            (rule, idx) => rule.field === option.value && idx !== currentIndex
+          )
       );
     } else if (currentCombinator === "or") {
       // Allow repetition of non-fixed fields but prevent duplicates of fixed fields
@@ -48,22 +74,6 @@ const Group = ({
           !usedFields.includes(option.value)
       );
     }
-  };
-
-  const addRule = () => {
-    const availableFields = getAvailableFields();
-    if (availableFields.length > 0) {
-      append({ type: "rule", field: "", operator: "=", value: "" });
-    }
-  };
-
-  const addGroup = () => {
-    append({
-      type: "group",
-      combinator: "and",
-      key : "parent",
-      rules: defaultRules
-    });
   };
 
   return (
@@ -84,19 +94,29 @@ const Group = ({
           />
         </FormControl>
         <FormControl variant="outlined" sx={{ mr: 2, minWidth: 120 }}>
-          <InputLabel>Key</InputLabel>
+          <InputLabel>key</InputLabel>
           <Controller
             name="key"
             control={control}
             defaultValue="parent"
             render={({ field }) => (
-              <Select {...field} label="Key">
-                <MenuItem value="parent">Parent</MenuItem>
-                <MenuItem value="target">Target</MenuItem>
+              <Select {...field} label="key">
+                <MenuItem value="parent">parent</MenuItem>
+                <MenuItem value="target">target</MenuItem>
               </Select>
             )}
           />
         </FormControl>
+        {canAddGroup && (
+          <Button
+            onClick={addGroup}
+            variant="contained"
+            color="primary"
+            sx={{ ml: 2 }}
+          >
+            Add Group
+          </Button>
+        )}
         {currentCombinator === "or" ? (
           <Button onClick={addRule} variant="contained" color="primary">
             Add Rule
@@ -106,17 +126,6 @@ const Group = ({
             Add Rule
           </Button>
         ) : null}
-
-        {canAddGroup && (
-          <Button
-            onClick={addGroup}
-            variant="contained"
-            color="primary"
-            sx={{ backgroundColor: "#ff9800", ml: 2 }}
-          >
-            Add Group
-          </Button>
-        )}
         {!isMainGroup && removeGroup && (
           <Button
             onClick={removeGroup}
@@ -138,6 +147,7 @@ const Group = ({
             remove={() => remove(index)}
             disableDelete={index < fixedRules.length}
             fixedRules={fixedRules}
+            handleFieldChange={handleFieldChange}
           />
         ) : (
           <Group
