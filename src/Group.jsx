@@ -14,7 +14,6 @@ const Group = ({
   name,
   combinatorName,
   fieldOptions,
-  keyName,
   errors = {},
   canAddGroup = false,
   isMainGroup = false,
@@ -22,7 +21,7 @@ const Group = ({
   fixedRules = [],
   defaultRules
 }) => {
-  const { control, watch  } = useFormContext();
+  const { control, watch } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name });
   const currentGroup = watch(name) || [];
   const currentCombinator = watch(combinatorName) || "and";
@@ -87,7 +86,7 @@ const Group = ({
         <FormControl variant="outlined" sx={{ mr: 2, minWidth: 120 }}>
           <InputLabel>Key</InputLabel>
           <Controller
-            name={keyName}
+            name="key"
             control={control}
             defaultValue="parent"
             render={({ field }) => (
