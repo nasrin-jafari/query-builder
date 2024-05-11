@@ -22,6 +22,7 @@ const ruleSchema = yup.object().shape({
 
 const groupSchema = yup.object().shape({
   combinator: yup.string().required("Combinator is required"),
+  key: yup.string().required("key is required"),
   rules: yup
     .array()
     .of(
@@ -31,6 +32,7 @@ const groupSchema = yup.object().shape({
 
 const schema = yup.object().shape({
   combinator: yup.string().required("Combinator is required"),
+  key: yup.string().required("key is required"),
   rules: yup
     .array()
     .of(

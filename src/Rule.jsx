@@ -16,11 +16,9 @@ const Rule = ({
   errors,
   remove,
   disableDelete,
-  fixedRules,
   handleFieldChange,
 }) => {
   const { control } = useFormContext();
-
   return (
     <Box
       sx={{
