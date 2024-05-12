@@ -59,7 +59,7 @@ const Group = ({
       append({ type: "rule", field: "", operator: "=", value: "" });
     }
   };
-
+  console.log(currentGroup);
   const addGroup = () => {
     append({
       type: "group",
@@ -68,6 +68,7 @@ const Group = ({
       rules: defaultRules,
     });
   };
+  const countRules = currentGroup.filter((rule) => rule.type === "rule").length;
   return (
     <Box sx={{ border: "1px solid grey", p: 2, mb: 2 }}>
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
@@ -103,7 +104,7 @@ const Group = ({
           <Button onClick={addRule} variant="contained" color="primary">
             Add Rule
           </Button>
-        ) : currentGroup.length < fieldOptions.length ? (
+        ) : countRules < fieldOptions.length ? (
           <Button onClick={addRule} variant="contained" color="primary">
             Add Rule
           </Button>
