@@ -6,12 +6,12 @@ import * as yup from "yup";
 import Group from "./Group";
 
 const fieldOptions = [
-  { label: "parent", value: "parent" },
-  { label: "target", value: "target" },
-  { label: "time", value: "time" },
-  { label: "agent id", value: "agentId" },
-  { label: "server id", value: "serverId" },
-  { label: "score", value: "score" },
+  { label: "parent", value: "parent", dataType: "text" },
+  { label: "target", value: "target", dataType: "text" },
+  { label: "time", value: "time", dataType: "date" },
+  { label: "agent id", value: "agentId", dataType: "text" },
+  { label: "server id", value: "serverId", dataType: "text" },
+  { label: "score", value: "score", dataType: "number" },
 ];
 
 const ruleSchema = yup.object().shape({

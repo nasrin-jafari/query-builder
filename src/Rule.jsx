@@ -7,18 +7,83 @@ import {
   Button,
   Box,
   FormHelperText,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
-
 const Rule = ({
   name,
   fieldOptions,
   errors,
-  remove,
-  disableDelete,
   handleFieldChange,
+  disableDelete,
+  remove,
 }) => {
-  const { control } = useFormContext();
+  const { control, watch } = useFormContext();
+
+  // Determine the input type based on dataType
+  const renderInputField = (field, dataType, error) => {
+    console.log(field);
+
+    switch (dataType) {
+      case "number":
+        return (
+          <TextField
+            {...field}
+            type="number"
+            label="Value"
+            variant="outlined"
+            error={!!error}
+            helperText={error ? error.message : null}
+          />
+        );
+      case "checkbox":
+        return (
+          <FormControlLabel
+            control={
+              <Checkbox
+                {...field}
+                checked={field.value}
+                onChange={(e) => field.onChange(e.target.checked)}
+              />
+            }
+            label="Value"
+          />
+        );
+      case "date":
+        // Assuming you want a date input (requires additional setup with a date library like @mui/x-date-pickers)
+        return (
+          <TextField
+            {...field}
+            type="date"
+            label="Value"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            variant="outlined"
+            error={!!error}
+            helperText={error ? error.message : null}
+          />
+        );
+      default:
+        return (
+          <TextField
+            {...field}
+            type="text"
+            label="Value"
+            variant="outlined"
+            error={!!error}
+            helperText={error ? error.message : null}
+          />
+        );
+    }
+  };
+
+  // Get current field data to determine the appropriate input type
+  const currentField = watch(`${name}.field`);
+  const currentFieldData =
+    fieldOptions.find((option) => option.value === currentField) || {};
+
   return (
     <Box
       sx={{
@@ -86,16 +151,9 @@ const Rule = ({
         name={`${name}.value`}
         control={control}
         defaultValue=""
-        render={({ field, fieldState: { error } }) => (
-          <TextField
-            {...field}
-            label="Value"
-            variant="outlined"
-            sx={{ flex: 2, mr: 2 }}
-            error={!!error}
-            helperText={error ? error.message : null}
-          />
-        )}
+        render={({ field, fieldState: { error } }) =>
+          renderInputField(field, currentFieldData.dataType, error)
+        }
       />
       {!disableDelete && (
         <Button onClick={remove} variant="contained" color="secondary">
