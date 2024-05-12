@@ -55,7 +55,7 @@ const QueryBuilder = () => {
     defaultValues: {
       type: "group",
       combinator: "and",
-      key: "parent",
+      key: "target",
       rules: defaultRules,
     },
   });
@@ -89,3 +89,4 @@ const QueryBuilder = () => {
 };
 
 export default QueryBuilder;
+/////س

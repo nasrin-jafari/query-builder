@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Button,
   Box,
@@ -7,7 +7,7 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import { useFormContext, useFieldArray, Controller } from "react-hook-form";
+import { useFieldArray, useFormContext, Controller } from "react-hook-form";
 import Rule from "./Rule";
 
 const Group = ({
@@ -19,29 +19,45 @@ const Group = ({
   isMainGroup = false,
   removeGroup = null,
   fixedRules = [],
-  defaultRules = [],
+  defaultRules,
 }) => {
-  const { control, watch, getValues, setValue } = useFormContext();
+  const { control, watch, setValue } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name });
   const currentGroup = watch(name) || [];
   const currentCombinator = watch(combinatorName) || "and";
-  // State to track field usage
-  const [usedFields, setUsedFields] = useState([]);
 
-  useEffect(() => {
-    const rules = getValues(name);
-    setUsedFields(rules.map((rule) => rule.field));
-  }, [getValues, name]);
+  // Extract fields from fixed rules
+  const extractedFixedFields = fixedRules.map((rule) => rule.field);
 
-  const handleFieldChange = (fieldValue, index) => {
-    const values = getValues(name);
-    values[index].field = fieldValue;
-    setValue(name, values);
-    setUsedFields(values.map((rule) => rule.field));
+  const handleFieldChange = (index, newValue) => {
+    const newFields = currentGroup.map((rule, idx) => {
+      if (idx === index) {
+        return { ...rule, field: newValue };
+      }
+      return rule;
+    });
+    setValue(`${name}`, newFields); // Update react-hook-form state
+  };
+
+  // Calculate the available fields for each rule within this group
+  const getAvailableFields = (currentIndex) => {
+    const usedFields = currentGroup
+      .filter((rule, index) => rule.type === "rule" && index !== currentIndex)
+      .map((rule) => rule.field);
+
+    return fieldOptions.filter((option) =>
+      currentCombinator === "or"
+        ? !extractedFixedFields.includes(option.value) ||
+          !usedFields.includes(option.value)
+        : !usedFields.includes(option.value)
+    );
   };
 
   const addRule = () => {
-    append({ type: "rule", field: "", operator: "=", value: "" });
+    const availableFields = getAvailableFields();
+    if (availableFields.length > 0) {
+      append({ type: "rule", field: "", operator: "=", value: "" });
+    }
   };
 
   const addGroup = () => {
@@ -52,30 +68,6 @@ const Group = ({
       rules: defaultRules,
     });
   };
-  const extractedFixedFields = fixedRules.map((rule) => rule.field);
-
-  const getAvailableFields = (currentIndex) => {
-    const currentValues = getValues(name);
-    const usedFields = currentGroup
-      .filter((rule, index) => rule.type === "rule" && index !== currentIndex)
-      .map((rule) => rule.field);
-    if (currentCombinator === "and") {
-      return fieldOptions.filter(
-        (option) =>
-          !currentValues.some(
-            (rule, idx) => rule.field === option.value && idx !== currentIndex
-          )
-      );
-    } else if (currentCombinator === "or") {
-      // Allow repetition of non-fixed fields but prevent duplicates of fixed fields
-      return fieldOptions.filter(
-        (option) =>
-          !extractedFixedFields.includes(option.value) ||
-          !usedFields.includes(option.value)
-      );
-    }
-  };
-console.log(errors ,'')
   return (
     <Box sx={{ border: "1px solid grey", p: 2, mb: 2 }}>
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
@@ -98,7 +90,7 @@ console.log(errors ,'')
           <Controller
             name="key"
             control={control}
-            defaultValue="parent"
+            defaultValue="target"
             render={({ field }) => (
               <Select {...field} label="key">
                 <MenuItem value="parent">parent</MenuItem>
@@ -107,16 +99,6 @@ console.log(errors ,'')
             )}
           />
         </FormControl>
-        {canAddGroup && (
-          <Button
-            onClick={addGroup}
-            variant="contained"
-            color="primary"
-            sx={{ ml: 2 }}
-          >
-            Add Group
-          </Button>
-        )}
         {currentCombinator === "or" ? (
           <Button onClick={addRule} variant="contained" color="primary">
             Add Rule
@@ -126,6 +108,17 @@ console.log(errors ,'')
             Add Rule
           </Button>
         ) : null}
+
+        {canAddGroup && (
+          <Button
+            onClick={addGroup}
+            variant="contained"
+            color="primary"
+            sx={{ backgroundColor: "#ff9800", ml: 2 }}
+          >
+            Add Group
+          </Button>
+        )}
         {!isMainGroup && removeGroup && (
           <Button
             onClick={removeGroup}
@@ -140,14 +133,15 @@ console.log(errors ,'')
       {fields.map((field, index) =>
         field.type === "rule" ? (
           <Rule
-          key={field.id}
-          name={`${name}[${index}]`}
-          fieldOptions={getAvailableFields(index)}
-          errors={errors.rules ? errors.rules[index] : {}}
-          remove={() => remove(index)}
-          disableDelete={index < fixedRules.length}
-          handleFieldChange={handleFieldChange}
-        />
+            key={field.id}
+            name={`${name}[${index}]`}
+            fieldOptions={getAvailableFields(index)}
+            errors={errors.rules ? errors.rules[index] : {}}
+            remove={() => remove(index)}
+            disableDelete={index < fixedRules.length}
+            fixedRules={fixedRules}
+            handleFieldChange={(newValue) => handleFieldChange(index, newValue)}
+          />
         ) : (
           <Group
             key={field.id}
@@ -158,6 +152,7 @@ console.log(errors ,'')
             canAddGroup={true}
             removeGroup={() => remove(index)}
             fixedRules={fixedRules}
+            defaultRules={defaultRules}
           />
         )
       )}
@@ -166,3 +161,4 @@ console.log(errors ,'')
 };
 
 export default Group;
+/////س

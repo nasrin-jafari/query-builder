@@ -1,4 +1,3 @@
-import React from "react";
 import {
   TextField,
   MenuItem,
@@ -19,7 +18,6 @@ const Rule = ({
   disableDelete,
   handleFieldChange,
 }) => {
-  console.log(errors);
   const { control } = useFormContext();
   return (
     <Box
@@ -50,11 +48,11 @@ const Rule = ({
               label="Field"
               disabled={disableDelete}
               onChange={(e) => {
-                handleFieldChange(e.target.value, parseInt(name.split("[")[1]));
-                field.onChange(e); // Ensure to call this to update react-hook-form
+                field.onChange(e); // First, handle react-hook-form changes
+                handleFieldChange(e.target.value); // Then, handle custom logic
               }}
             >
-              {fieldOptions?.map((option) => (
+              {fieldOptions.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
                 </MenuItem>
@@ -109,3 +107,4 @@ const Rule = ({
 };
 
 export default Rule;
+/////س
