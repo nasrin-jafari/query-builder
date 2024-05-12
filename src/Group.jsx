@@ -59,7 +59,6 @@ const Group = ({
       append({ type: "rule", field: "", operator: "=", value: "" });
     }
   };
-  console.log(currentGroup);
   const addGroup = () => {
     append({
       type: "group",

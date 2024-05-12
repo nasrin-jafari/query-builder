@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@mui/material";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -59,7 +59,23 @@ const QueryBuilder = () => {
       rules: defaultRules,
     },
   });
+  const pageIdentifier = "pageSearch";
+  const localStorageKey = `formData-${pageIdentifier}`;
+  useEffect(() => {
+    const savedForm = localStorage.getItem(localStorageKey);
+    if (savedForm) {
+      methods.reset(JSON.parse(savedForm));
+    }
+  }, [methods, localStorageKey]);
 
+  useEffect(() => {
+    const subscription = methods.watch((value, { name, type }) => {
+      if (name) {
+        localStorage.setItem(localStorageKey, JSON.stringify(value));
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [methods, localStorageKey]);
   const { handleSubmit, formState } = methods;
   const { errors } = formState;
 
